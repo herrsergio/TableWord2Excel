@@ -12,7 +12,7 @@ Dim wkSht As Worksheet
 
 On Error Resume Next
 
-wdFileName = Application.GetOpenFilename("Word files (*.doc),*.doc", , _
+wdFileName = Application.GetOpenFilename("Word files (*.docx),*.docx", , _
 "Browse for file containing table to be imported")
 
 If wdFileName = False Then Exit Sub '(user cancelled import file browser)
