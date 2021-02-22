@@ -1,0 +1,55 @@
+Sub ImportWordTable()
+
+Dim wdDoc As Object
+Dim wdFileName As Variant
+Dim tableNo As Long 'table number in Word
+Dim iRow As Long 'row index in Excel
+Dim iCol As Long 'column index in Excel
+Dim resultRow As Long
+Dim tableStart As Long
+Dim tableTot As Long
+Dim wkSht As Worksheet
+
+On Error Resume Next
+
+wdFileName = Application.GetOpenFilename("Word files (*.doc),*.doc", , _
+"Browse for file containing table to be imported")
+
+If wdFileName = False Then Exit Sub '(user cancelled import file browser)
+  Set wkSht = ActiveSheet
+  wkSht.Range("A:AZ").ClearContents
+
+  Set wdDoc = GetObject(wdFileName) 'open Word file
+
+  With wdDoc
+    tableNo = wdDoc.Tables.Count
+    tableTot = wdDoc.Tables.Count
+    If tableNo = 0 Then
+      MsgBox "This document contains no tables", _
+        vbExclamation, "Import Word Table"
+    ElseIf tableNo > 1 Then
+      tableNo = InputBox("This Word document contains " & tableNo & " tables." & vbCrLf & _
+        "Enter the table to start from", "Import Word Table", "1")
+    End If
+
+    resultRow = 4
+
+    For tableStart = 1 To tableTot
+      With .Tables(tableStart)
+        'copy cell contents from Word table cells to Excel cells
+        For iRow = 1 To .Rows.Count
+          For iCol = 1 To .Columns.Count
+            wkSht.Cells(resultRow, iCol) = WorksheetFunction.Clean(.Cell(iRow, iCol).Range.Text)
+          Next iCol
+          resultRow = resultRow + 1
+        Next iRow
+      End With
+      resultRow = resultRow + 1
+      With wkSht
+        .Range(.Cells(resultRow, 1), .Cells(resultRow, iCol)).Interior.ColorIndex = 15
+      End With
+      resultRow = resultRow + 1
+    Next tableStart
+End With
+
+End Sub
